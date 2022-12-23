@@ -7,62 +7,47 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MySql.Data.MySqlClient;
 
 namespace aplikasi_data
 {
     public partial class Form1 : Form
     {
+        MySqlConnection sqlConn = new MySqlConnection();
+        MySqlCommand SqlCmd = new MySqlCommand();
+        DataTable sqlDt = new DataTable();
+        string sqlQuery;
+        MySqlDataAdapter Dta = new MySqlDataAdapter();
+        MySqlDataReader sqlRd;
+
+        DataSet DS = new DataSet();
+
+        string server = "localhost";
+        string username = "root";
+        string password = "masbim";
+        string database = "kampus";
+
         public Form1()
         {
             InitializeComponent();
         }
 
-        private void label1_Click(object sender, EventArgs e)
+        private void upLoadData()
         {
+            sqlConn.ConnectionString = "server" + server + ";" + "user id =" + username + ";" +
+                "password=" + password + ";" + "database=" + database;
 
-        }
+            sqlConn.Open(); 
 
-        private void txtKeluar_Click(object sender, EventArgs e)
-        {
-            MeKeluar();
-        }
-
-        private void MeKeluar()
-        {
-            DialogResult iKeluar;
-
-            iKeluar = MessageBox.Show("Yakin untuk keluar? ", "Simpan Data ", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-            if (iKeluar == DialogResult.Yes )
-            {
-                Application.Exit();
-
-            }
+            sqlDt.Load(sqlRd);
+            sqlRd.Close();
+            sqlConn.Close();
+            dataGridView1.DataSource= sqlDt;
         }
 
         private void btnTambah_Click(object sender, EventArgs e)
         {
             dataGridView1.Rows.Add(txtNim.Text, txtNama.Text, txtKelas.Text, txtAlamat.Text, txtTanggal.Text, txtNomor.Text);
-        }
-
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-            MeKeluar();
-        }
-
-        private void cetakToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            int height = dataGridView1.Height;
-            dataGridView1.Height = dataGridView1.RowCount * dataGridView1.RowTemplate.Height * 2;
-            bitmap = new Bitmap(dataGridView1.Width, dataGridView1.Height);
-            dataGridView1.DrawToBitmap(bitmap, new Rectangle(0, 0, dataGridView1.Width, dataGridView1.Height));
-            printPreviewDialog1.PrintPreviewControl.Zoom = 1;
-            printPreviewDialog1.ShowDialog();
-            dataGridView1.Height = height;
         }
 
         private void iHapus()
@@ -78,16 +63,23 @@ namespace aplikasi_data
             iHapus();
         }
 
-        private void hapusToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            iHapus();
-        }
-
         private void btnUlang_Click(object sender, EventArgs e)
         {
-            IUlang();
+           try
+            {
+                foreach(Control c in this.Controls)
+                {
+                    if (c is TextBox)
+                        ((TextBox)c).Clear();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
-                 private void IUlang()
+
+        private void IUlang()
         {   //============================================= HAPUS DATA TEXTBOX ==============================================
             foreach (var c in this.Controls)
             {
@@ -130,9 +122,24 @@ namespace aplikasi_data
             e.Graphics.DrawImage(bitmap, 0, 0);
         }
 
-        private void printPreviewDialog1_Load(object sender, EventArgs e)
+        private void btnKeluar_Click(object sender, EventArgs e)
         {
+            DialogResult iKeluar;
+            try
+            {
+            
+            iKeluar = MessageBox.Show("Apakah anda yakin ingin keluar?", "Form Data Diri Mahasiswa",
+                      MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
+             if (iKeluar == DialogResult.Yes)
+                {
+                    Application.Exit();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }
